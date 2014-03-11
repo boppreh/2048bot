@@ -60,7 +60,7 @@ class Board(object):
 
 
     def _rand_empty_position(self):
-        if all(self.cells):
+        if self.is_full():
             raise GameOver()
 
         while True:
@@ -77,6 +77,9 @@ class Board(object):
         new[new._rand_empty_position()] = new._rand_piece()
         return new
 
+    def is_full(self):
+        return all(self.cells)
+
     def __eq__(self, other):
         return self.cells == other.cells
 
@@ -87,7 +90,7 @@ class Game(object):
 
     def play(self, direction):
         new = self.board.move(direction)
-        if new == self.board:
+        if new == self.board and not new.is_full():
             return
 
         self.board = new.place_random()
@@ -95,15 +98,26 @@ class Game(object):
     def __str__(self):
         return '-------\n' + str(self.board) + '-------'
 
-if __name__ == '__main__':
-    import console
+def play_bot(logic):
     g = Game()
-
     keymap = {'up': (0, -1), 'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
+    try:
+        while True:
+            g.play(keymap[logic(g.board)])
+            print(g)
+    except GameOver:
+        return max(g.board.cells)
 
-    while True:
-        console.display(str(g))
-        key = console.get_valid_key(list(keymap.keys()) + ['q'])
+
+if __name__ == '__main__':
+    #import console
+    def player_logic(board):
+        console.display(board)
+        key = console.get_valid_key(['q', 'up', 'down', 'left', 'right'])
         if key == 'q':
-            break
-        g.play(keymap[key])
+            exit()
+        return key
+
+    import itertools
+    cycle = itertools.cycle(['up', 'left', 'right', 'up', 'left'])
+    print(play_bot(lambda board: next(cycle)))
