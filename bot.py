@@ -23,21 +23,26 @@ class Board(object):
 
     def move(self, direction):
         dif_x, dif_y = direction
+        # Make sure we move the last tiles first, so they don't block the
+        # previous ones.
+        x_range = range(4) if dif_x < 1 else range(3, -1, -1)
+        y_range = range(4) if dif_y < 1 else range(3, -1, -1)
 
-        for x in range(4):
-            for y in range(4):
+        for x in x_range:
+            for y in y_range:
                 if not self[x, y]:
                     continue
                 
                 new_x, new_y = x, y
                 while True:
+                    old_x, old_y = new_x, new_y
                     new_x += dif_x
                     new_y += dif_y
                     if self[new_x, new_y]:
                         break
                     else:
-                        self[new_x, new_y] = self[x, y]
-                        self[x, y] = 0
+                        self[new_x, new_y] = self[old_x, old_y]
+                        self[old_x, old_y] = 0
 
 
     def _rand_empty_position(self):
@@ -64,11 +69,18 @@ class Game(object):
         self.board.move(direction)
         self.board.place_random()
 
-    def print(self):
-        print('-------\n' + str(self.board) + '-------')
+    def __str__(self):
+        return '-------\n' + str(self.board) + '-------'
 
 if __name__ == '__main__':
+    import console
     g = Game()
-    g.print()
-    g.board.move((1, 0))
-    g.print()
+
+    keymap = {'up': (0, -1), 'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
+
+    while True:
+        console.display(str(g))
+        key = console.get_valid_key(list(keymap.keys()) + ['q'])
+        if key == 'q':
+            break
+        g.play(keymap[key])
