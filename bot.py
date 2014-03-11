@@ -4,8 +4,11 @@ class GameOver(Exception):
     pass
 
 class Board(object):
-    def __init__(self):
-        self.cells = [0] * 16
+    def __init__(self, base_board=None):
+        if base_board:
+            self.cells = list(base_board.cells)
+        else:
+            self.cells = [0] * 16
 
     def __str__(self):
         c = list(map(str, self.cells))
@@ -31,6 +34,8 @@ class Board(object):
         x_range = range(4) if dif_x < 1 else range(3, -1, -1)
         y_range = range(4) if dif_y < 1 else range(3, -1, -1)
 
+        new = Board(self)
+
         for x in x_range:
             for y in y_range:
                 if not self[x, y]:
@@ -41,14 +46,17 @@ class Board(object):
                     old_x, old_y = new_x, new_y
                     new_x += dif_x
                     new_y += dif_y
-                    if self[new_x, new_y] == self[old_x, old_y]:
-                        self[new_x, new_y] *= 2
+                    if new[new_x, new_y] == new[old_x, old_y]:
+                        new[new_x, new_y] *= 2
+                        new[old_x, old_y] = 0
                         break
-                    elif self[new_x, new_y]:
+                    elif new[new_x, new_y]:
                         break
                     else:
-                        self[new_x, new_y] = self[old_x, old_y]
-                        self[old_x, old_y] = 0
+                        new[new_x, new_y] = new[old_x, old_y]
+                        new[old_x, old_y] = 0
+
+        return new
 
 
     def _rand_empty_position(self):
@@ -65,18 +73,24 @@ class Board(object):
         return random.choice([2] * 9 + [4])
 
     def place_random(self):
-        self[self._rand_empty_position()] = self._rand_piece()
+        new = Board(self)
+        new[new._rand_empty_position()] = new._rand_piece()
+        return new
+
+    def __eq__(self, other):
+        return self.cells == other.cells
 
 
 class Game(object):
     def __init__(self):
-        self.board = Board()
-        self.board.place_random()
-        self.board.place_random()
+        self.board = Board().place_random().place_random()
 
     def play(self, direction):
-        self.board.move(direction)
-        self.board.place_random()
+        new = self.board.move(direction)
+        if new == self.board:
+            return
+
+        self.board = new.place_random()
 
     def __str__(self):
         return '-------\n' + str(self.board) + '-------'
