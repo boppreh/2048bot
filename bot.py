@@ -127,8 +127,6 @@ if __name__ == '__main__':
 
     import itertools
     cycle = itertools.cycle(['left', 'up', 'right', 'up'])
-    def cycler(board):
-        # Emit a 'down' once in a while to avoid getting stuck.
-        return next(cycle) if random.random() > 0.01 else 'down'
-    scores = get_bot_scores(cycler, 10000)
-    print(max(scores))
+    # Emit a 'down' once in a while to avoid getting stuck.
+    cycler = lambda board: next(cycle) if random.random() > 0.01 else 'down'
+    print(max(get_bot_scores(cycler, 10000)))
