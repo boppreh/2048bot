@@ -104,10 +104,12 @@ def play_bot(logic):
     try:
         while True:
             g.play(keymap[logic(g.board)])
-            print(g)
     except GameOver:
         return max(g.board.cells)
 
+def get_bot_scores(logic, repeats=10):
+    for i in range(repeats):
+        yield play_bot(logic)
 
 if __name__ == '__main__':
     #import console
@@ -119,5 +121,9 @@ if __name__ == '__main__':
         return key
 
     import itertools
-    cycle = itertools.cycle(['up', 'left', 'right', 'up', 'left'])
-    print(play_bot(lambda board: next(cycle)))
+    cycle = itertools.cycle(['left', 'up', 'right', 'up'])
+    def cycler(board):
+        # Emit a 'down' once in a while to avoid getting stuck.
+        return next(cycle) if random.random() > 0.01 else 'down'
+    scores = get_bot_scores(cycler, 10000)
+    print(max(scores))
