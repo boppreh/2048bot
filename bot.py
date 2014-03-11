@@ -38,7 +38,10 @@ class Board(object):
                     old_x, old_y = new_x, new_y
                     new_x += dif_x
                     new_y += dif_y
-                    if self[new_x, new_y]:
+                    if self[new_x, new_y] == self[old_x, old_y]:
+                        self[new_x, new_y] *= 2
+                        break
+                    elif self[new_x, new_y]:
                         break
                     else:
                         self[new_x, new_y] = self[old_x, old_y]
