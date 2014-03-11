@@ -98,6 +98,17 @@ class Game(object):
     def __str__(self):
         return '-------\n' + str(self.board) + '-------'
 
+def play_human():
+    import console
+    def player_logic(board):
+        console.display(str(board))
+        key = console.get_valid_key(['q', 'up', 'down', 'left', 'right'])
+        if key == 'q':
+            exit()
+        return key
+
+    return play_bot(player_logic)
+
 def play_bot(logic):
     g = Game()
     keymap = {'up': (0, -1), 'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
@@ -112,13 +123,7 @@ def get_bot_scores(logic, repeats=10):
         yield play_bot(logic)
 
 if __name__ == '__main__':
-    #import console
-    def player_logic(board):
-        console.display(board)
-        key = console.get_valid_key(['q', 'up', 'down', 'left', 'right'])
-        if key == 'q':
-            exit()
-        return key
+    #play_human()
 
     import itertools
     cycle = itertools.cycle(['left', 'up', 'right', 'up'])
