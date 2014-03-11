@@ -1,5 +1,8 @@
 import random
 
+class GameOver(Exception):
+    pass
+
 class Board(object):
     def __init__(self):
         self.cells = [0] * 16
@@ -49,6 +52,9 @@ class Board(object):
 
 
     def _rand_empty_position(self):
+        if all(self.cells):
+            raise GameOver()
+
         while True:
             x = random.randint(0, 3)
             y = random.randint(0, 3)
